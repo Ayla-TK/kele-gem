@@ -4,6 +4,7 @@ require './lib/roadmap.rb'
 
 class Kele
   include HTTParty
+  include Roadmap
 
     def initialize(email, password)
         response = self.class.post(base_api_endpoint("sessions"), body: {"email": email, "password": password})
@@ -22,14 +23,18 @@ class Kele
       @mentor_availability = JSON.parse(response.body)
     end
 
-    def get_roadmap(roadmap_id)
-      response = self.class.get(base_api_endpoint("roadmaps/#{roadmap_id}"), headers: { "authorization" => @auth_token })
-      @roadmap = JSON.parse(response.body)
+    def get_messages(page=nil)
+      if page == nil
+      response = self.class.get(base_api_endpoint("message_threads"), headers: { "authorization" => @auth_token })
+      else
+      response = self.class.get(base_api_endpoint("message_threads?page=#{page}"), headers: { "authorization" => @auth_token })
+      end
+      @get_messages = JSON.parse(response.body)
     end
 
-    def get_checkpoint(checkpoint_id)
-      response = self.class.get(base_api_endpoint("checkpoints/#{checkpoint_id}"), headers: { "authorization" => @auth_token })
-      @checkpoint = JSON.parse(response.body)
+    def create_message(recipient_id, subject, message)
+      response = self.class.post(base_api_endpoint("messages"), body: { "user_id": id, "recipient_id": recipient_id, "subject": subject, "stripped-text": message }, headers: { "authorization" => @auth_token })
+      puts response
     end
 
     private
